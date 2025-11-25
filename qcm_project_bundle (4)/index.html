@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion - QCM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background: #0b0c10;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-box {
+      background: #1f1f2e;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 77, 109, 0.3);
+      width: 90%;
+      max-width: 400px;
+    }
+    h2 {
+      color: #ff4d6d;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      background: #14151c;
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #ff4d6d;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #ff7482;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Connexion au QCM</h2>
+    <form onsubmit="return login(event)">
+      <input type="text" id="username" placeholder="ex: thomas-m" required>
+      <button type="submit">Se connecter</button>
+      <div class="error" id="error"></div>
+    </form>
+  </div>
+  <script>
+    const users = [
+      "baheux-p", "croguennec-t", "piron-a", "le-goff-e", "brehelin-e", "mekhfi-a",
+      "belbeoch-n", "jicquel-r", "gargadennec-m", "thomas-m", "leroux-e", "strullu-l",
+      "philippe-durand-e", "leverge-c", "gardeux-g", "poggi-g", "morvan-g",
+      "henry-k", "lavieille-d", "quinio-diraison-g", "admin"
+    ];
+
+    function login(e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim().toLowerCase();
+      const errorBox = document.getElementById("error");
+
+      if (!users.includes(username)) {
+        errorBox.textContent = "Utilisateur inconnu. Veuillez vérifier votre identifiant.";
+        return;
+      }
+
+      localStorage.setItem("currentUser", username);
+      window.location.href = username === "admin" ? "admin.html" : "oral.html";
+    }
+  </script>
+</body>
+</html>
