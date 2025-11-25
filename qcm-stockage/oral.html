@@ -109,7 +109,7 @@
   <script>
     const user = localStorage.getItem("currentUser");
     const correctAnswers = { q1: "A", q2: "A", q3: "B", q4: "C", q5: "A" };
-    const endpoint = "https://script.google.com/macros/s/AKfycbxQxKahFSw1v5RlDfXtkaQTbas6XJ7UNSO3fCTrgJQz25URbahQY44YokdhyyIrm1RJ7g/exec";
+const endpoint = "https://script.google.com/macros/s/AKfycbwKRDhOE8LM-Hra53d0ciRlxgy9tuyU_Lfk75nVV_vOXquEDZMWDPkMUu8LWbNAFejClA/exec";
 
     document.getElementById("user").textContent = user ? `Connecté : ${user}` : "Non connecté";
 
@@ -136,7 +136,6 @@
       // Envoi vers Google Sheet
       fetch(endpoint, {
         method: "POST",
-        mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: user,
