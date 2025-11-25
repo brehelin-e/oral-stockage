@@ -3,35 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Résultats QCM</title>
+  <title>Résultats - QCM</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"/>
   <style>
     body {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
       background: #0b0c10;
       color: #fff;
-      padding: 30px;
+      font-family: 'Orbitron', sans-serif;
+      padding: 20px;
     }
-    h1, h2 {
-      text-align: center;
-      color: #ff4d6d;
-    }
-    .box {
+    .container {
+      max-width: 900px;
+      margin: auto;
       background: #1f1f2e;
       padding: 30px;
-      border-radius: 15px;
-      max-width: 900px;
-      margin: 30px auto;
-      box-shadow: 0 0 30px rgba(255, 77, 109, 0.3);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255, 77, 109, 0.2);
     }
-    .highlight {
+    h1 {
+      color: #ff4d6d;
       text-align: center;
-      font-size: 22px;
-      margin-bottom: 20px;
     }
-    .highlight span {
-      color: #4df5a1;
+    .score {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 20px;
     }
     table {
       width: 100%;
@@ -44,75 +40,69 @@
       border-bottom: 1px solid #333;
     }
     th {
-      background: #14151c;
-      color: #ff7482;
+      background-color: #ff4d6d;
+      color: black;
     }
-    .gold { background: #ffd70033; font-weight: bold; color: #ffd700; }
-    .silver { background: #c0c0c033; font-weight: bold; color: #c0c0c0; }
-    .bronze { background: #cd7f3233; font-weight: bold; color: #cd7f32; }
-    .btn-back {
-      margin-top: 30px;
-      display: block;
-      background: #ff4d6d;
-      color: #fff;
-      text-align: center;
-      padding: 14px;
-      text-decoration: none;
-      border-radius: 10px;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    .btn-back:hover {
-      background: #ff7482;
+    .absents {
+      margin-top: 20px;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>📊 Résultats du QCM</h1>
-    <div class="highlight" id="userScore"></div>
-    <h2>🏆 Classement général</h2>
-    <table>
-      <thead><tr><th>Position</th><th>Utilisateur</th><th>Score</th><th>%</th></tr></thead>
-      <tbody id="classement"></tbody>
+  <div class="container">
+    <h1>Résultats de la Classe</h1>
+    <div class="score" id="userScore">Chargement...</div>
+
+    <table id="ranking">
+      <thead>
+        <tr>
+          <th>Nom d'utilisateur</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
     </table>
-    <div class="highlight" id="stats"></div>
-    <a href="login.html" class="btn-back">🔁 Retour à l’accueil</a>
+
+    <div class="absents" id="absentsInfo"></div>
   </div>
 
   <script>
-    const currentUser = localStorage.getItem("currentUser") || "Anonyme";
-    const data = JSON.parse(localStorage.getItem("results")) || {};
-    const totalQuestions = 5;
+    const user = localStorage.getItem("currentUser");
+    const allUsers = [
+      "baheux-p", "croguennec-t", "piron-a", "le-goff-e", "brehelin-e", "mekhfi-a",
+      "belbeoch-n", "jicquel-r", "gargadennec-m", "thomas-m", "leroux-e", "strullu-l",
+      "philippe-durand-e", "leverge-c", "gardeux-g", "poggi-g", "morvan-g",
+      "henry-k", "lavieille-d", "quinio-diraison-g"
+    ];
 
-    const scoresArray = Object.entries(data).map(([user, score]) => ({
-      user, score, percent: Math.round((score / totalQuestions) * 100)
-    }));
+    fetch("https://script.google.com/macros/s/AKfycbxQxKahFSw1v5RlDfXtkaQTbas6XJ7UNSO3fCTrgJQz25URbahQY44YokdhyyIrm1RJ7g/exec")
+      .then(res => res.json())
+      .then(data => {
+        const users = data.filter(item => item.username !== "admin");
+        const tableBody = document.querySelector("#ranking tbody");
 
-    scoresArray.sort((a, b) => b.score - a.score);
+        let currentUserFound = false;
+        users.sort((a, b) => b.score - a.score).forEach(entry => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${entry.username}</td><td>${entry.score}/${entry.total}</td>`;
+          tableBody.appendChild(tr);
+          if (entry.username === user) {
+            document.getElementById("userScore").textContent = `🎯 Ton score : ${entry.score}/${entry.total}`;
+            currentUserFound = true;
+          }
+        });
 
-    const userScore = data[currentUser];
-    document.getElementById("userScore").innerHTML =
-      `🎯 <strong>${currentUser}</strong>, tu as obtenu <span>${userScore}/${totalQuestions}</span> soit <span>${Math.round((userScore / totalQuestions) * 100)}%</span>`;
+        if (!currentUserFound) {
+          document.getElementById("userScore").textContent = "❗ Tu n'as pas encore soumis tes réponses.";
+        }
 
-    const tbody = document.getElementById("classement");
-    scoresArray.forEach((entry, index) => {
-      const tr = document.createElement("tr");
-      const cls = index === 0 ? "gold" : index === 1 ? "silver" : index === 2 ? "bronze" : "";
-      tr.className = cls;
-      tr.innerHTML = `
-        <td>#${index + 1}</td>
-        <td>${entry.user}</td>
-        <td>${entry.score}/${totalQuestions}</td>
-        <td>${entry.percent}%</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    const moyenne = (scoresArray.reduce((a, b) => a + b.score, 0) / scoresArray.length).toFixed(2);
-    const meilleurs = scoresArray.filter(e => e.score === totalQuestions).length;
-    const stats = `📈 Moyenne de la classe : <span>${moyenne}/${totalQuestions}</span> — 💯 élèves ayant tout juste : <span>${meilleurs}</span>`;
-    document.getElementById("stats").innerHTML = stats;
+        const respondedUsers = users.map(u => u.username);
+        const notResponded = allUsers.filter(u => !respondedUsers.includes(u));
+        const absentsDiv = document.getElementById("absentsInfo");
+        absentsDiv.innerHTML = `<strong>Participants :</strong> ${users.length} / ${allUsers.length}<br/>
+        <strong>Non répondus :</strong> ${notResponded.length > 0 ? notResponded.join(", ") : "Aucun 🎉"}`;
+      });
   </script>
 </body>
 </html>

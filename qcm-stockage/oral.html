@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QCM - Stockage</title>
+  <title>QCM - Évolution du Stockage</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"/>
   <style>
     body {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
       background: #0b0c10;
       color: #fff;
+      font-family: 'Orbitron', sans-serif;
       padding: 20px;
     }
     .container {
@@ -22,33 +21,22 @@
       box-shadow: 0 0 30px rgba(255, 77, 109, 0.2);
     }
     h1 {
+      text-align: center;
       color: #ff4d6d;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .user-info {
-      text-align: center;
-      font-size: 16px;
-      color: #ccc;
-      margin-bottom: 20px;
     }
     .question {
-      margin-bottom: 25px;
-    }
-    .question h3 {
-      color: #ff7482;
+      margin: 25px 0;
     }
     .option {
       display: block;
       background: #14151c;
       padding: 12px;
       border-radius: 8px;
-      margin: 10px 0;
+      margin-top: 10px;
       cursor: pointer;
-      transition: 0.2s;
     }
     .option:hover,
-    .option.selected {
+    .option input:checked + span {
       background: #ff4d6d;
       color: #000;
     }
@@ -57,117 +45,108 @@
     }
     button {
       width: 100%;
-      padding: 14px;
-      background: #ff4d6d;
-      border: none;
-      border-radius: 10px;
-      color: #fff;
-      font-weight: bold;
+      padding: 15px;
       font-size: 16px;
+      font-weight: bold;
+      border: none;
+      background: #ff4d6d;
+      color: white;
+      border-radius: 12px;
       cursor: pointer;
-      transition: background 0.3s;
+      margin-top: 20px;
     }
-    button:hover {
-      background: #ff7482;
-    }
-    .result {
+    .user {
       text-align: center;
-      margin-top: 25px;
-      font-size: 20px;
-      color: #ff7482;
+      margin-bottom: 15px;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>QCM - Évolution du Stockage</h1>
-    <div class="user-info" id="userInfo">Chargement...</div>
+    <div class="user" id="user">Chargement...</div>
     <form id="quizForm">
       <div class="question">
-        <h3>1. Quelle technologie n'a pas de pièces mécaniques ?</h3>
-        <label class="option"><input type="radio" name="q1" value="A"> A. SSD</label>
-        <label class="option"><input type="radio" name="q1" value="B"> B. HDD</label>
-        <label class="option"><input type="radio" name="q1" value="C"> C. Bande magnétique</label>
+        <p>1. Quelle technologie n'a pas de pièces mécaniques ?</p>
+        <label class="option"><input type="radio" name="q1" value="A"><span> A. SSD</span></label>
+        <label class="option"><input type="radio" name="q1" value="B"><span> B. HDD</span></label>
+        <label class="option"><input type="radio" name="q1" value="C"><span> C. Bande magnétique</span></label>
       </div>
+
       <div class="question">
-        <h3>2. Que signifie NVMe ?</h3>
-        <label class="option"><input type="radio" name="q2" value="A"> A. Non-Volatile Memory Express</label>
-        <label class="option"><input type="radio" name="q2" value="B"> B. New Virtual Memory Engine</label>
-        <label class="option"><input type="radio" name="q2" value="C"> C. Next Video Media Extension</label>
+        <p>2. Que signifie NVMe ?</p>
+        <label class="option"><input type="radio" name="q2" value="A"><span> A. Non-Volatile Memory Express</span></label>
+        <label class="option"><input type="radio" name="q2" value="B"><span> B. New Virtual Memory Engine</span></label>
+        <label class="option"><input type="radio" name="q2" value="C"><span> C. Next Video Media Extension</span></label>
       </div>
+
       <div class="question">
-        <h3>3. Quelle est la capacité du premier disque dur en 1956 ?</h3>
-        <label class="option"><input type="radio" name="q3" value="A"> A. 500 Mo</label>
-        <label class="option"><input type="radio" name="q3" value="B"> B. 3,75 Mo</label>
-        <label class="option"><input type="radio" name="q3" value="C"> C. 1 Go</label>
+        <p>3. Quelle est la capacité du premier disque dur en 1956 ?</p>
+        <label class="option"><input type="radio" name="q3" value="A"><span> A. 500 Mo</span></label>
+        <label class="option"><input type="radio" name="q3" value="B"><span> B. 3,75 Mo</span></label>
+        <label class="option"><input type="radio" name="q3" value="C"><span> C. 1 Go</span></label>
       </div>
+
       <div class="question">
-        <h3>4. Quel est un inconvénient du SSD ?</h3>
-        <label class="option"><input type="radio" name="q4" value="A"> A. Il est très lent</label>
-        <label class="option"><input type="radio" name="q4" value="B"> B. Il fait du bruit</label>
-        <label class="option"><input type="radio" name="q4" value="C"> C. Écriture limitée dans le temps</label>
+        <p>4. Quel est un inconvénient du SSD ?</p>
+        <label class="option"><input type="radio" name="q4" value="A"><span> A. Il est très lent</span></label>
+        <label class="option"><input type="radio" name="q4" value="B"><span> B. Il fait du bruit</span></label>
+        <label class="option"><input type="radio" name="q4" value="C"><span> C. Écriture limitée dans le temps</span></label>
       </div>
+
       <div class="question">
-        <h3>5. Quel disque est un mélange de SSD et HDD ?</h3>
-        <label class="option"><input type="radio" name="q5" value="A"> A. SSHD</label>
-        <label class="option"><input type="radio" name="q5" value="B"> B. HDD</label>
-        <label class="option"><input type="radio" name="q5" value="C"> C. SDD+</label>
+        <p>5. Quel disque est un mélange de SSD et HDD ?</p>
+        <label class="option"><input type="radio" name="q5" value="A"><span> A. SSHD</span></label>
+        <label class="option"><input type="radio" name="q5" value="B"><span> B. HDD</span></label>
+        <label class="option"><input type="radio" name="q5" value="C"><span> C. SDD+</span></label>
       </div>
+
       <button type="button" onclick="submitQuiz()">Envoyer mes réponses</button>
-      <div class="result" id="result"></div>
     </form>
   </div>
 
   <script>
-    const currentUser = localStorage.getItem("currentUser");
-    const userInfo = document.getElementById("userInfo");
-    if (currentUser) {
-      userInfo.textContent = `Connecté : ${currentUser}`;
-    } else {
-      userInfo.textContent = "Redirection vers la connexion...";
-      setTimeout(() => window.location.href = "login.html", 2000);
-    }
-
+    const user = localStorage.getItem("currentUser");
     const correctAnswers = { q1: "A", q2: "A", q3: "B", q4: "C", q5: "A" };
+    const endpoint = "https://script.google.com/macros/s/AKfycbxQxKahFSw1v5RlDfXtkaQTbas6XJ7UNSO3fCTrgJQz25URbahQY44YokdhyyIrm1RJ7g/exec";
 
-    document.querySelectorAll('.option').forEach(option => {
-      option.addEventListener('click', () => {
-        const input = option.querySelector('input');
-        const name = input.name;
-        document.querySelectorAll(`input[name="${name}"]`).forEach(i => {
-          i.parentElement.classList.remove('selected');
-        });
-        input.checked = true;
-        option.classList.add('selected');
-      });
-    });
+    document.getElementById("user").textContent = user ? `Connecté : ${user}` : "Non connecté";
 
     function submitQuiz() {
+      const answers = {};
       let score = 0;
-      let total = Object.keys(correctAnswers).length;
-      let incomplete = false;
+      let allAnswered = true;
 
       for (let q in correctAnswers) {
-        const answer = document.querySelector(`input[name="${q}"]:checked`);
-        if (!answer) {
-          incomplete = true;
+        const selected = document.querySelector(`input[name="${q}"]:checked`);
+        if (!selected) {
+          allAnswered = false;
           break;
         }
-        if (answer.value === correctAnswers[q]) {
-          score++;
-        }
+        answers[q] = selected.value;
+        if (selected.value === correctAnswers[q]) score++;
       }
 
-      const result = document.getElementById("result");
-      if (incomplete) {
-        result.style.color = "#ff4d6d";
-        result.textContent = "⚠️ Réponds à toutes les questions !";
-      } else {
-        let results = JSON.parse(localStorage.getItem("results")) || {};
-        results[currentUser] = score;
-        localStorage.setItem("results", JSON.stringify(results));
-        window.location.href = "resultat.html";
+      if (!allAnswered) {
+        alert("❗ Merci de répondre à toutes les questions !");
+        return;
       }
+
+      // Envoi vers Google Sheet
+      fetch(endpoint, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: user,
+          score: score,
+          total: 5,
+          ...answers
+        })
+      });
+
+      setTimeout(() => window.location.href = "resultat.html", 500); // redirection
     }
   </script>
 </body>
