@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Résultats QCM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: #0b0c10;
+      color: #fff;
+      padding: 30px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #ff4d6d;
+    }
+    .box {
+      background: #1f1f2e;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 900px;
+      margin: 30px auto;
+      box-shadow: 0 0 30px rgba(255, 77, 109, 0.3);
+    }
+    .highlight {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+    .highlight span {
+      color: #4df5a1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      background: #14151c;
+      color: #ff7482;
+    }
+    .gold { background: #ffd70033; font-weight: bold; color: #ffd700; }
+    .silver { background: #c0c0c033; font-weight: bold; color: #c0c0c0; }
+    .bronze { background: #cd7f3233; font-weight: bold; color: #cd7f32; }
+    .btn-back {
+      margin-top: 30px;
+      display: block;
+      background: #ff4d6d;
+      color: #fff;
+      text-align: center;
+      padding: 14px;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .btn-back:hover {
+      background: #ff7482;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>📊 Résultats du QCM</h1>
+    <div class="highlight" id="userScore"></div>
+    <h2>🏆 Classement général</h2>
+    <table>
+      <thead><tr><th>Position</th><th>Utilisateur</th><th>Score</th><th>%</th></tr></thead>
+      <tbody id="classement"></tbody>
+    </table>
+    <div class="highlight" id="stats"></div>
+    <a href="login.html" class="btn-back">🔁 Retour à l’accueil</a>
+  </div>
+
+  <script>
+    const currentUser = localStorage.getItem("currentUser") || "Anonyme";
+    const data = JSON.parse(localStorage.getItem("results")) || {};
+    const totalQuestions = 5;
+
+    const scoresArray = Object.entries(data).map(([user, score]) => ({
+      user, score, percent: Math.round((score / totalQuestions) * 100)
+    }));
+
+    scoresArray.sort((a, b) => b.score - a.score);
+
+    const userScore = data[currentUser];
+    document.getElementById("userScore").innerHTML =
+      `🎯 <strong>${currentUser}</strong>, tu as obtenu <span>${userScore}/${totalQuestions}</span> soit <span>${Math.round((userScore / totalQuestions) * 100)}%</span>`;
+
+    const tbody = document.getElementById("classement");
+    scoresArray.forEach((entry, index) => {
+      const tr = document.createElement("tr");
+      const cls = index === 0 ? "gold" : index === 1 ? "silver" : index === 2 ? "bronze" : "";
+      tr.className = cls;
+      tr.innerHTML = `
+        <td>#${index + 1}</td>
+        <td>${entry.user}</td>
+        <td>${entry.score}/${totalQuestions}</td>
+        <td>${entry.percent}%</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    const moyenne = (scoresArray.reduce((a, b) => a + b.score, 0) / scoresArray.length).toFixed(2);
+    const meilleurs = scoresArray.filter(e => e.score === totalQuestions).length;
+    const stats = `📈 Moyenne de la classe : <span>${moyenne}/${totalQuestions}</span> — 💯 élèves ayant tout juste : <span>${meilleurs}</span>`;
+    document.getElementById("stats").innerHTML = stats;
+  </script>
+</body>
+</html>
