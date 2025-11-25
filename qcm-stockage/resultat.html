@@ -10,7 +10,7 @@
 
   <script>
     const user = localStorage.getItem("currentUser");
-    fetch("https://script.google.com/macros/s/TON_DEPLOYEMENT_ID/exec")
+    fetch("https://script.google.com/macros/s/AKfycbxAXdQ07ArLpFMQUsn_lUjPi5_Hqzwcljs6mAXCNoDeReiZZTs9aqZpmuSNfW_ynygUqg/exec")
       .then(res => res.json())
       .then(data => {
         data.sort((a, b) => b.score - a.score);
