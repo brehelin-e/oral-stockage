@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Résultats - QCM Stockage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background: #0b0c10;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #1f1f2e;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255, 77, 109, 0.2);
+    }
+    h1 {
+      text-align: center;
+      color: #ff4d6d;
+      margin-bottom: 10px;
+    }
+    .score-section {
+      background: #14151c;
+      padding: 25px;
+      border-radius: 15px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .score-big {
+      font-size: 48px;
+      color: #ff4d6d;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: #14151c;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 32px;
+      color: #ff4d6d;
+      font-weight: bold;
+    }
+    .stat-label {
+      color: #aaa;
+      margin-top: 5px;
+    }
+    .correction {
+      margin-top: 30px;
+    }
+    .correction h2 {
+      color: #ff4d6d;
+      margin-bottom: 20px;
+    }
+    .question-result {
+      background: #14151c;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      border-left: 4px solid #444;
+    }
+    .question-result.correct {
+      border-left-color: #4caf50;
+    }
+    .question-result.wrong {
+      border-left-color: #f44336;
+    }
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .answer-line {
+      margin: 5px 0;
+      padding: 5px;
+    }
+    .correct-answer {
+      color: #4caf50;
+    }
+    .wrong-answer {
+      color: #f44336;
+    }
+    .your-answer {
+      color: #ff4d6d;
+    }
+    .icon {
+      display: inline-block;
+      margin-right: 8px;
+      font-size: 20px;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    button {
+      padding: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      background: #ff4d6d;
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: #ff3355;
+      transform: scale(1.02);
+    }
+    button.secondary {
+      background: #444;
+    }
+    button.secondary:hover {
+      background: #555;
+    }
+    .leaderboard {
+      margin-top: 30px;
+    }
+    .leaderboard h2 {
+      color: #ff4d6d;
+      margin-bottom: 15px;
+    }
+    .leaderboard-item {
+      background: #14151c;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .leaderboard-item.current {
+      border: 2px solid #ff4d6d;
+    }
+    .rank {
+      font-weight: bold;
+      color: #ff4d6d;
+      margin-right: 10px;
+    }
+    .medal {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Résultats du QCM</h1>
+    
+    <div class="score-section">
+      <div>Félicitations <span id="username" style="color: #ff4d6d;"></span> !</div>
+      <div class="score-big" id="userScore">-/-</div>
+      <div style="color: #aaa;">Ton score</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="avgScore">-</div>
+        <div class="stat-label">Moyenne générale</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalUsers">-</div>
+        <div class="stat-label">Participants</div>
+      </div>
+    </div>
+
+    <div class="leaderboard" id="leaderboardSection">
+      <h2>🏆 Classement</h2>
+      <div id="leaderboardList"></div>
+    </div>
+
+    <div class="correction">
+      <h2>📝 Correction détaillée</h2>
+      <div id="correctionList"></div>
+    </div>
+
+    <div class="buttons">
+      <button onclick="retryQuiz()">🔄 Refaire le QCM</button>
+      <button class="secondary" onclick="downloadResults()">💾 Télécharger JSON</button>
+    </div>
+  </div>
+
+<script>
+const questions = [
+  {
+    q: "Quelle technologie n'a pas de pièces mécaniques ?",
+    options: { A: "SSD", B: "HDD", C: "Bande magnétique" },
+    correct: "A",
+    explanation: "Le SSD (Solid State Drive) utilise de la mémoire flash sans pièces mobiles, contrairement aux HDD qui ont des plateaux rotatifs."
+  },
+  {
+    q: "Que signifie NVMe ?",
+    options: { A: "Non-Volatile Memory Express", B: "New Virtual Memory Engine", C: "Next Video Media Extension" },
+    correct: "A",
+    explanation: "NVMe (Non-Volatile Memory Express) est un protocole optimisé pour les SSD qui utilise le bus PCIe."
+  },
+  {
+    q: "Quelle est la capacité du premier disque dur en 1956 ?",
+    options: { A: "500 Mo", B: "3,75 Mo", C: "1 Go" },
+    correct: "B",
+    explanation: "L'IBM 305 RAMAC de 1956 avait une capacité de seulement 3,75 Mo (ou 5 millions de caractères) et pesait plus d'une tonne !"
+  },
+  {
+    q: "Quel est un inconvénient du SSD ?",
+    options: { A: "Il est très lent", B: "Il fait du bruit", C: "Écriture limitée dans le temps" },
+    correct: "C",
+    explanation: "Les cellules de mémoire flash des SSD ont un nombre limité de cycles d'écriture/effacement, bien que cela soit suffisant pour un usage normal pendant de nombreuses années."
+  },
+  {
+    q: "Quel disque est un mélange de SSD et HDD ?",
+    options: { A: "SSHD", B: "HDD", C: "SDD+" },
+    correct: "A",
+    explanation: "Le SSHD (Solid State Hybrid Drive) combine un disque dur traditionnel avec une petite quantité de mémoire flash pour améliorer les performances."
+  }
+];
+
+window.onload = function() {
+  const lastResult = JSON.parse(localStorage.getItem("lastResult") || "{}");
+  const allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
+
+  if (!lastResult.username) {
+    window.location.href = "qcm.html";
+    return;
+  }
+
+  // Afficher le nom et le score de l'utilisateur
+  document.getElementById("username").textContent = lastResult.username;
+  document.getElementById("userScore").textContent = `${lastResult.score}/${lastResult.total}`;
+
+  // Calculer les statistiques
+  if (allResults.length > 0) {
+    const totalScore = allResults.reduce((sum, r) => sum + r.score, 0);
+    const average = (totalScore / allResults.length).toFixed(1);
+    document.getElementById("avgScore").textContent = average + "/5";
+    document.getElementById("totalUsers").textContent = allResults.length;
+
+    // Générer le classement
+    const sortedResults = [...allResults].sort((a, b) => b.score - a.score);
+    const leaderboardHTML = sortedResults.slice(0, 10).map((result, index) => {
+      const isCurrent = result.username === lastResult.username && result.date === lastResult.date;
+      const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "";
+      return `
+        <div class="leaderboard-item ${isCurrent ? 'current' : ''}">
+          <div>
+            <span class="rank">#${index + 1}</span>
+            <span class="medal">${medal}</span>
+            ${result.username}
+          </div>
+          <div style="color: #ff4d6d; font-weight: bold;">${result.score}/5</div>
+        </div>
+      `;
+    }).join("");
+    document.getElementById("leaderboardList").innerHTML = leaderboardHTML;
+  }
+
+  // Générer la correction
+  const correctionHTML = questions.map((question, index) => {
+    const qNum = `q${index + 1}`;
+    const userAnswer = lastResult.answers[qNum];
+    const isCorrect = userAnswer === question.correct;
+
+    return `
+      <div class="question-result ${isCorrect ? 'correct' : 'wrong'}">
+        <div class="question-title">
+          <span class="icon">${isCorrect ? '✅' : '❌'}</span>
+          Question ${index + 1} : ${question.q}
+        </div>
+        <div class="answer-line your-answer">
+          <strong>Ta réponse :</strong> ${userAnswer} - ${question.options[userAnswer]}
+        </div>
+        ${!isCorrect ? `
+          <div class="answer-line correct-answer">
+            <strong>Bonne réponse :</strong> ${question.correct} - ${question.options[question.correct]}
+          </div>
+        ` : ''}
+        <div class="answer-line" style="color: #aaa; margin-top: 8px; font-size: 14px;">
+          💡 ${question.explanation}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("correctionList").innerHTML = correctionHTML;
+};
+
+function retryQuiz() {
+  // Ne pas effacer les résultats, juste retourner au QCM
+  window.location.href = "qcm.html";
+}
+
+function downloadResults() {
+  const allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
+  
+  // Créer un objet avec toutes les infos
+  const data = {
+    totalParticipants: allResults.length,
+    averageScore: allResults.length > 0 ? 
+      (allResults.reduce((sum, r) => sum + r.score, 0) / allResults.length).toFixed(2) : 0,
+    results: allResults,
+    questions: questions,
+    generatedAt: new Date().toISOString()
+  };
+
+  // Créer un blob et télécharger
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `qcm-results-${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

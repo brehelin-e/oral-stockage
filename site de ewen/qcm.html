@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QCM - Évolution du Stockage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background: #0b0c10;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #1f1f2e;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255, 77, 109, 0.2);
+    }
+    h1 {
+      text-align: center;
+      color: #ff4d6d;
+      margin-bottom: 10px;
+    }
+    .page {
+      display: none;
+    }
+    .page.active {
+      display: block;
+    }
+    .question {
+      margin: 25px 0;
+    }
+    .option {
+      display: block;
+      background: #14151c;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .option:hover {
+      background: #ff4d6d;
+      color: #000;
+      transform: translateX(5px);
+    }
+    .option.selected {
+      background: #ff4d6d;
+      color: #000;
+    }
+    input[type="radio"] {
+      display: none;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      background: #ff4d6d;
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s;
+      font-family: 'Orbitron', sans-serif;
+    }
+    button:hover {
+      background: #ff3355;
+      transform: scale(1.02);
+    }
+    button.secondary {
+      background: #444;
+    }
+    button.secondary:hover {
+      background: #555;
+    }
+    .user-input {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .user-input input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 2px solid #ff4d6d;
+      background: #14151c;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      width: 80%;
+      max-width: 300px;
+    }
+    .score-section {
+      background: #14151c;
+      padding: 25px;
+      border-radius: 15px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .score-big {
+      font-size: 48px;
+      color: #ff4d6d;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: #14151c;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 32px;
+      color: #ff4d6d;
+      font-weight: bold;
+    }
+    .stat-label {
+      color: #aaa;
+      margin-top: 5px;
+    }
+    .question-result {
+      background: #14151c;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      border-left: 4px solid #444;
+    }
+    .question-result.correct {
+      border-left-color: #4caf50;
+    }
+    .question-result.wrong {
+      border-left-color: #f44336;
+    }
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .answer-line {
+      margin: 5px 0;
+      padding: 5px;
+    }
+    .correct-answer {
+      color: #4caf50;
+    }
+    .wrong-answer {
+      color: #f44336;
+    }
+    .your-answer {
+      color: #ff4d6d;
+    }
+    .icon {
+      display: inline-block;
+      margin-right: 8px;
+      font-size: 20px;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .leaderboard {
+      margin-top: 30px;
+    }
+    .leaderboard h2 {
+      color: #ff4d6d;
+      margin-bottom: 15px;
+    }
+    .leaderboard-item {
+      background: #14151c;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .leaderboard-item.current {
+      border: 2px solid #ff4d6d;
+    }
+    .rank {
+      font-weight: bold;
+      color: #ff4d6d;
+      margin-right: 10px;
+    }
+    .medal {
+      font-size: 20px;
+    }
+    .nav-menu {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .nav-button {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 5px;
+      background: #444;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .nav-button:hover {
+      background: #ff4d6d;
+    }
+    .login-box {
+      background: #14151c;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 400px;
+      margin: 50px auto;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 2px solid #ff4d6d;
+      background: #0b0c10;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      margin: 15px 0;
+      box-sizing: border-box;
+    }
+    .login-box button {
+      margin-top: 10px;
+    }
+    .error-message {
+      color: #f44336;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Navigation (cachée pendant le QCM) -->
+    <div class="nav-menu" id="navMenu" style="display: none;">
+      <div class="nav-button" onclick="showPage('quiz')">🎯 QCM</div>
+      <div class="nav-button" onclick="showPage('results')">📊 Résultats</div>
+      <div class="nav-button" onclick="showAdminLogin()">🔧 Admin</div>
+    </div>
+
+    <!-- PAGE QCM -->
+    <div id="quizPage" class="page active">
+      <h1>QCM - Évolution du Stockage</h1>
+      
+      <div class="user-input" id="userInput">
+        <p>Entre ton nom :</p>
+        <input type="text" id="username" placeholder="Ton pseudo" />
+      </div>
+
+      <div style="text-align: center; margin-bottom: 15px; color: #aaa;" id="userDisplay" style="display:none;">
+        Participant : <span id="currentUser"></span>
+      </div>
+
+      <form id="quizForm">
+        <div class="question">
+          <p>1. Quelle technologie n'a pas de pièces mécaniques ?</p>
+          <label class="option"><input type="radio" name="q1" value="A"><span> A. SSD</span></label>
+          <label class="option"><input type="radio" name="q1" value="B"><span> B. HDD</span></label>
+          <label class="option"><input type="radio" name="q1" value="C"><span> C. Bande magnétique</span></label>
+        </div>
+
+        <div class="question">
+          <p>2. Que signifie NVMe ?</p>
+          <label class="option"><input type="radio" name="q2" value="A"><span> A. Non-Volatile Memory Express</span></label>
+          <label class="option"><input type="radio" name="q2" value="B"><span> B. New Virtual Memory Engine</span></label>
+          <label class="option"><input type="radio" name="q2" value="C"><span> C. Next Video Media Extension</span></label>
+        </div>
+
+        <div class="question">
+          <p>3. Quelle est la capacité du premier disque dur en 1956 ?</p>
+          <label class="option"><input type="radio" name="q3" value="A"><span> A. 500 Mo</span></label>
+          <label class="option"><input type="radio" name="q3" value="B"><span> B. 3,75 Mo</span></label>
+          <label class="option"><input type="radio" name="q3" value="C"><span> C. 1 Go</span></label>
+        </div>
+
+        <div class="question">
+          <p>4. Quel est un inconvénient du SSD ?</p>
+          <label class="option"><input type="radio" name="q4" value="A"><span> A. Il est très lent</span></label>
+          <label class="option"><input type="radio" name="q4" value="B"><span> B. Il fait du bruit</span></label>
+          <label class="option"><input type="radio" name="q4" value="C"><span> C. Écriture limitée dans le temps</span></label>
+        </div>
+
+        <div class="question">
+          <p>5. Quel disque est un mélange de SSD et HDD ?</p>
+          <label class="option"><input type="radio" name="q5" value="A"><span> A. SSHD</span></label>
+          <label class="option"><input type="radio" name="q5" value="B"><span> B. HDD</span></label>
+          <label class="option"><input type="radio" name="q5" value="C"><span> C. SDD+</span></label>
+        </div>
+
+        <button type="button" onclick="submitQuiz()">Envoyer mes réponses</button>
+      </form>
+    </div>
+
+    <!-- PAGE RÉSULTATS -->
+    <div id="resultsPage" class="page">
+      <h1>🎯 Résultats du QCM</h1>
+      
+      <div class="score-section">
+        <div>Félicitations <span id="resultUsername" style="color: #ff4d6d;"></span> !</div>
+        <div class="score-big" id="userScore">-/-</div>
+        <div style="color: #aaa;">Ton score</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="avgScore">-</div>
+          <div class="stat-label">Moyenne générale</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalUsers">-</div>
+          <div class="stat-label">Participants</div>
+        </div>
+      </div>
+
+      <div class="leaderboard">
+        <h2>🏆 Classement</h2>
+        <div id="leaderboardList"></div>
+      </div>
+
+      <div style="margin-top: 30px;">
+        <h2 style="color: #ff4d6d;">📝 Correction détaillée</h2>
+        <div id="correctionList"></div>
+      </div>
+
+      <div class="buttons">
+        <button onclick="showPage('quiz'); resetQuiz();">🔄 Refaire le QCM</button>
+        <button class="secondary" onclick="downloadResults()">💾 Télécharger JSON</button>
+      </div>
+    </div>
+
+    <!-- PAGE ADMIN LOGIN -->
+    <div id="adminLoginPage" class="page">
+      <h1>🔒 Accès Admin</h1>
+      
+      <div class="login-box">
+        <div style="font-size: 48px; margin-bottom: 20px;">🔐</div>
+        <h2 style="color: #ff4d6d;">Connexion</h2>
+        <p style="color: #aaa;">Entre le mot de passe admin</p>
+        
+        <input 
+          type="password" 
+          id="adminPassword" 
+          placeholder="Mot de passe"
+          onkeypress="if(event.key==='Enter') checkAdminPassword()"
+        />
+        
+        <button onclick="checkAdminPassword()">🔓 Se connecter</button>
+        <button class="secondary" onclick="showPage('quiz')" style="margin-top: 10px;">← Retour</button>
+        
+        <div id="loginError" class="error-message"></div>
+      </div>
+    </div>
+
+    <!-- PAGE ADMIN -->
+    <div id="adminPage" class="page">
+      <h1>🔧 Administration</h1>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="adminTotal">0</div>
+          <div class="stat-label">Participants</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="adminAvg">0</div>
+          <div class="stat-label">Moyenne</div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button onclick="downloadResults()">💾 Export JSON</button>
+        <button class="secondary" onclick="showPage('quiz')">← Retour QCM</button>
+        <button style="background: #444;" onclick="logoutAdmin()">🚪 Déconnexion</button>
+        <button style="background: #f44336;" onclick="clearAllData()">🗑️ Tout effacer</button>
+      </div>
+
+      <div style="background: #14151c; border-radius: 12px; padding: 20px; margin-top: 20px;">
+        <h3 style="color: #ff4d6d;">📋 Historique</h3>
+        <div id="adminHistory"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// Hash SHA-256 du mot de passe "ewenlegoat123"
+const ADMIN_PASSWORD_HASH = "d752177b3b12b2773c7af2a64129b8cb13ab3a5cf50f37cfc1aa790c2b489e8e";
+
+const correctAnswers = { 
+  q1: "A", q2: "A", q3: "B", q4: "C", q5: "A" 
+};
+
+const questions = [
+  {
+    q: "Quelle technologie n'a pas de pièces mécaniques ?",
+    options: { A: "SSD", B: "HDD", C: "Bande magnétique" },
+    correct: "A",
+    explanation: "Le SSD (Solid State Drive) utilise de la mémoire flash sans pièces mobiles."
+  },
+  {
+    q: "Que signifie NVMe ?",
+    options: { A: "Non-Volatile Memory Express", B: "New Virtual Memory Engine", C: "Next Video Media Extension" },
+    correct: "A",
+    explanation: "NVMe est un protocole optimisé pour les SSD qui utilise le bus PCIe."
+  },
+  {
+    q: "Quelle est la capacité du premier disque dur en 1956 ?",
+    options: { A: "500 Mo", B: "3,75 Mo", C: "1 Go" },
+    correct: "B",
+    explanation: "L'IBM 305 RAMAC de 1956 avait seulement 3,75 Mo et pesait plus d'une tonne !"
+  },
+  {
+    q: "Quel est un inconvénient du SSD ?",
+    options: { A: "Il est très lent", B: "Il fait du bruit", C: "Écriture limitée dans le temps" },
+    correct: "C",
+    explanation: "Les cellules de mémoire flash ont un nombre limité de cycles d'écriture/effacement."
+  },
+  {
+    q: "Quel disque est un mélange de SSD et HDD ?",
+    options: { A: "SSHD", B: "HDD", C: "SDD+" },
+    correct: "A",
+    explanation: "Le SSHD combine un disque dur avec de la mémoire flash pour de meilleures performances."
+  }
+];
+
+// Initialisation
+window.onload = function() {
+  const savedUser = localStorage.getItem("currentUser");
+  if (savedUser) {
+    document.getElementById("userInput").style.display = "none";
+    document.getElementById("userDisplay").style.display = "block";
+    document.getElementById("currentUser").textContent = savedUser;
+  }
+
+  // Gérer la sélection des options
+  document.querySelectorAll('.option').forEach(option => {
+    option.addEventListener('click', function() {
+      const input = this.querySelector('input');
+      const name = input.name;
+      
+      document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
+        inp.parentElement.classList.remove('selected');
+      });
+      
+      this.classList.add('selected');
+    });
+  });
+
+  // Gérer l'entrée du nom
+  document.getElementById('username')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      const username = this.value.trim();
+      if (username) {
+        localStorage.setItem("currentUser", username);
+        document.getElementById("userInput").style.display = "none";
+        document.getElementById("userDisplay").style.display = "block";
+        document.getElementById("currentUser").textContent = username;
+      }
+    }
+  });
+};
+
+// Fonction pour hasher le mot de passe avec SHA-256
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
+// Afficher la page de connexion admin
+function showAdminLogin() {
+  // Vérifier si déjà connecté
+  const isAdminLogged = sessionStorage.getItem('adminLogged');
+  if (isAdminLogged === 'true') {
+    showPage('admin');
+  } else {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('adminLoginPage').classList.add('active');
+    document.getElementById('navMenu').style.display = 'block';
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('loginError').textContent = '';
+  }
+}
+
+// Vérifier le mot de passe admin
+async function checkAdminPassword() {
+  const password = document.getElementById('adminPassword').value;
+  const errorDiv = document.getElementById('loginError');
+  
+  if (!password) {
+    errorDiv.textContent = '❌ Entre un mot de passe';
+    return;
+  }
+  
+  const hash = await sha256(password);
+  
+  if (hash === ADMIN_PASSWORD_HASH) {
+    sessionStorage.setItem('adminLogged', 'true');
+    errorDiv.textContent = '';
+    showPage('admin');
+  } else {
+    errorDiv.textContent = '❌ Mot de passe incorrect';
+    document.getElementById('adminPassword').value = '';
+  }
+}
+
+function showPage(pageName) {
+  // Vérifier l'authentification pour la page admin
+  if (pageName === 'admin') {
+    const isAdminLogged = sessionStorage.getItem('adminLogged');
+    if (isAdminLogged !== 'true') {
+      showAdminLogin();
+      return;
+    }
+  }
+  
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  
+  if (pageName === 'quiz') {
+    document.getElementById('quizPage').classList.add('active');
+    document.getElementById('navMenu').style.display = 'none';
+  } else if (pageName === 'results') {
+    document.getElementById('resultsPage').classList.add('active');
+    document.getElementById('navMenu').style.display = 'block';
+    loadResults();
+  } else if (pageName === 'admin') {
+    document.getElementById('adminPage').classList.add('active');
+    document.getElementById('navMenu').style.display = 'block';
+    loadAdmin();
+  }
+}
+
+function submitQuiz() {
+  let user = localStorage.getItem("currentUser");
+  if (!user) {
+    const username = document.getElementById('username')?.value.trim();
+    if (!username) {
+      alert("❗ Entre ton nom d'abord !");
+      return;
+    }
+    user = username;
+    localStorage.setItem("currentUser", user);
+  }
+
+  const answers = {};
+  let score = 0;
+  let allAnswered = true;
+
+  for (let q in correctAnswers) {
+    const selected = document.querySelector(`input[name="${q}"]:checked`);
+    if (!selected) {
+      allAnswered = false;
+      break;
+    }
+    answers[q] = selected.value;
+    if (selected.value === correctAnswers[q]) score++;
+  }
+
+  if (!allAnswered) {
+    alert("❗ Merci de répondre à toutes les questions !");
+    return;
+  }
+
+  const result = {
+    username: user,
+    score: score,
+    total: 5,
+    answers: answers,
+    date: new Date().toISOString()
+  };
+
+  let allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
+  allResults.push(result);
+  localStorage.setItem("quizResults", JSON.stringify(allResults));
+  localStorage.setItem("lastResult", JSON.stringify(result));
+
+  showPage('results');
+}
+
+function loadResults() {
+  const lastResult = JSON.parse(localStorage.getItem("lastResult") || "{}");
+  const allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
+
+  if (!lastResult.username) {
+    showPage('quiz');
+    return;
+  }
+
+  document.getElementById("resultUsername").textContent = lastResult.username;
+  document.getElementById("userScore").textContent = `${lastResult.score}/${lastResult.total}`;
+
+  if (allResults.length > 0) {
+    const totalScore = allResults.reduce((sum, r) => sum + r.score, 0);
+    const average = (totalScore / allResults.length).toFixed(1);
+    document.getElementById("avgScore").textContent = average + "/5";
+    document.getElementById("totalUsers").textContent = allResults.length;
+
+    const sortedResults = [...allResults].sort((a, b) => b.score - a.score);
+    const leaderboardHTML = sortedResults.slice(0, 10).map((result, index) => {
+      const isCurrent = result.username === lastResult.username && result.date === lastResult.date;
+      const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "";
+      return `
+        <div class="leaderboard-item ${isCurrent ? 'current' : ''}">
+          <div>
+            <span class="rank">#${index + 1}</span>
+            <span class="medal">${medal}</span>
+            ${result.username}
+          </div>
+          <div style="color: #ff4d6d; font-weight: bold;">${result.score}/5</div>
+        </div>
+      `;
+    }).join("");
+    document.getElementById("leaderboardList").innerHTML = leaderboardHTML;
+  }
+
+  const correctionHTML = questions.map((question, index) => {
+    const qNum = `q${index + 1}`;
+    const userAnswer = lastResult.answers[qNum];
+    const isCorrect = userAnswer === question.correct;
+
+    return `
+      <div class="question-result ${isCorrect ? 'correct' : 'wrong'}">
+        <div class="question-title">
+          <span class="icon">${isCorrect ? '✅' : '❌'}</span>
+          Question ${index + 1} : ${question.q}
+        </div>
+        <div class="answer-line your-answer">
+          <strong>Ta réponse :</strong> ${userAnswer} - ${question.options[userAnswer]}
+        </div>
+        ${!isCorrect ? `
+          <div class="answer-line correct-answer">
+            <strong>Bonne réponse :</strong> ${question.correct} - ${question.options[question.correct]}
+          </div>
+        ` : ''}
+        <div class="answer-line" style="color: #aaa; margin-top: 8px; font-size: 14px;">
+          💡 ${question.explanation}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("correctionList").innerHTML = correctionHTML;
+}
+
+function loadAdmin() {
+  const allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
+  
+  if (allResults.length > 0) {
+    const avg = (allResults.reduce((sum, r) => sum + r.score, 0) / allResults.length).toFixed(1);
+    document.getElementById("adminTotal").textContent = allResults.length;
+    document.getElementById("adminAvg").textContent = avg + "/5";
+
+    const historyHTML = allResults.map((r, i) => `
+      <div style="background: #0b0c10; padding: 10px; border-radius: 8px; margin: 8px 0;">
+        <strong>${i + 1}. ${r.username}</strong> - ${r.score}/5
+        <span style="color: #aaa; font-size: 12px; float: right;">${new Date(r.date).toLocaleString('fr-FR')}</span>
+      </div>
+    `).join("");
+    document.getElementById("adminHistory").innerHTML = historyHTML;
+  }
+}
+
+function resetQuiz() {
+  document.querySelectorAll('input[type="radio"]').forEach(input => {
+    input.checked = false;
+    input.parentElement.classList.remove('selected');
+  });
+}
+
+function downloadResults() {
+  const allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
+  
+  const data = {
+    totalParticipants: allResults.length,
+    averageScore: allResults.length > 0 ? 
+      (allResults.reduce((sum, r) => sum + r.score, 0) / allResults.length).toFixed(2) : 0,
+    results: allResults,
+    questions: questions,
+    generatedAt: new Date().toISOString()
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `qcm-results-${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function clearAllData() {
+  if (confirm("⚠️ Effacer TOUTES les données ?")) {
+    localStorage.clear();
+    alert("✅ Données effacées !");
+    location.reload();
+  }
+}
+
+function logoutAdmin() {
+  sessionStorage.removeItem('adminLogged');
+  alert("✅ Déconnecté !");
+  showPage('quiz');
+}
+</script>
+
+</body>
+</html>
