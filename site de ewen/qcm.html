@@ -74,6 +74,10 @@
       background: #ff3355;
       transform: scale(1.02);
     }
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
     button.secondary {
       background: #444;
     }
@@ -151,15 +155,6 @@
       margin: 5px 0;
       padding: 5px;
     }
-    .correct-answer {
-      color: #4caf50;
-    }
-    .wrong-answer {
-      color: #f44336;
-    }
-    .your-answer {
-      color: #ff4d6d;
-    }
     .icon {
       display: inline-block;
       margin-right: 8px;
@@ -234,26 +229,43 @@
       margin: 15px 0;
       box-sizing: border-box;
     }
-    .login-box button {
-      margin-top: 10px;
-    }
     .error-message {
       color: #f44336;
       margin-top: 10px;
       font-size: 14px;
     }
+    .loading {
+      text-align: center;
+      color: #ff4d6d;
+      margin: 20px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      color: #ff4d6d;
+      font-weight: bold;
+    }
+    tr:hover {
+      background: #1a1a2e;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Navigation (cachée pendant le QCM) -->
     <div class="nav-menu" id="navMenu" style="display: none;">
       <div class="nav-button" onclick="showPage('quiz')">🎯 QCM</div>
       <div class="nav-button" onclick="showPage('results')">📊 Résultats</div>
       <div class="nav-button" onclick="showAdminLogin()">🔧 Admin</div>
     </div>
 
-    <!-- PAGE QCM -->
     <div id="quizPage" class="page active">
       <h1>QCM - Évolution du Stockage</h1>
       
@@ -302,48 +314,51 @@
           <label class="option"><input type="radio" name="q5" value="C"><span> C. SDD+</span></label>
         </div>
 
-        <button type="button" onclick="submitQuiz()">Envoyer mes réponses</button>
+        <button type="button" id="submitBtn" onclick="submitQuiz()">Envoyer mes réponses</button>
+        <div class="loading" id="submitLoading" style="display: none;">⏳ Envoi en cours...</div>
       </form>
     </div>
 
-    <!-- PAGE RÉSULTATS -->
     <div id="resultsPage" class="page">
       <h1>🎯 Résultats du QCM</h1>
       
-      <div class="score-section">
-        <div>Félicitations <span id="resultUsername" style="color: #ff4d6d;"></span> !</div>
-        <div class="score-big" id="userScore">-/-</div>
-        <div style="color: #aaa;">Ton score</div>
-      </div>
-
-      <div class="stats">
-        <div class="stat-card">
-          <div class="stat-value" id="avgScore">-</div>
-          <div class="stat-label">Moyenne générale</div>
+      <div class="loading" id="resultsLoading">⏳ Chargement des résultats...</div>
+      
+      <div id="resultsContent" style="display: none;">
+        <div class="score-section">
+          <div>Félicitations <span id="resultUsername" style="color: #ff4d6d;"></span> !</div>
+          <div class="score-big" id="userScore">-/-</div>
+          <div style="color: #aaa;">Ton score</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" id="totalUsers">-</div>
-          <div class="stat-label">Participants</div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-value" id="avgScore">-</div>
+            <div class="stat-label">Moyenne générale</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalUsers">-</div>
+            <div class="stat-label">Participants</div>
+          </div>
         </div>
-      </div>
 
-      <div class="leaderboard">
-        <h2>🏆 Classement</h2>
-        <div id="leaderboardList"></div>
-      </div>
+        <div class="leaderboard">
+          <h2>🏆 Classement</h2>
+          <div id="leaderboardList"></div>
+        </div>
 
-      <div style="margin-top: 30px;">
-        <h2 style="color: #ff4d6d;">📝 Correction détaillée</h2>
-        <div id="correctionList"></div>
-      </div>
+        <div style="margin-top: 30px;">
+          <h2 style="color: #ff4d6d;">📝 Correction détaillée</h2>
+          <div id="correctionList"></div>
+        </div>
 
-      <div class="buttons">
-        <button onclick="showPage('quiz'); resetQuiz();">🔄 Refaire le QCM</button>
-        <button class="secondary" onclick="downloadResults()">💾 Télécharger JSON</button>
+        <div class="buttons">
+          <button onclick="showPage('quiz'); resetQuiz();">🔄 Refaire le QCM</button>
+          <button class="secondary" onclick="downloadResults()">💾 Télécharger JSON</button>
+        </div>
       </div>
     </div>
 
-    <!-- PAGE ADMIN LOGIN -->
     <div id="adminLoginPage" class="page">
       <h1>🔒 Accès Admin</h1>
       
@@ -366,77 +381,88 @@
       </div>
     </div>
 
-    <!-- PAGE ADMIN -->
     <div id="adminPage" class="page">
       <h1>🔧 Administration</h1>
       
-      <div class="stats">
-        <div class="stat-card">
-          <div class="stat-value" id="adminTotal">0</div>
-          <div class="stat-label">Participants</div>
+      <div class="loading" id="adminLoading">⏳ Chargement...</div>
+      
+      <div id="adminContent" style="display: none;">
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-value" id="adminTotal">0</div>
+            <div class="stat-label">Participants</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="adminAvg">0</div>
+            <div class="stat-label">Moyenne</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" id="adminAvg">0</div>
-          <div class="stat-label">Moyenne</div>
+
+        <div class="buttons">
+          <button onclick="refreshAdminData()">🔄 Actualiser</button>
+          <button onclick="downloadResults()">💾 Export JSON</button>
+          <button class="secondary" onclick="showPage('quiz')">← Retour QCM</button>
+          <button style="background: #444;" onclick="logoutAdmin()">🚪 Déconnexion</button>
+          <button style="background: #f44336;" onclick="clearAllData()">🗑️ Tout effacer</button>
         </div>
-      </div>
 
-      <div class="buttons">
-        <button onclick="downloadResults()">💾 Export JSON</button>
-        <button class="secondary" onclick="showPage('quiz')">← Retour QCM</button>
-        <button style="background: #444;" onclick="logoutAdmin()">🚪 Déconnexion</button>
-        <button style="background: #f44336;" onclick="clearAllData()">🗑️ Tout effacer</button>
-      </div>
-
-      <div style="background: #14151c; border-radius: 12px; padding: 20px; margin-top: 20px;">
-        <h3 style="color: #ff4d6d;">📋 Historique</h3>
-        <div id="adminHistory"></div>
+        <div style="background: #14151c; border-radius: 12px; padding: 20px; margin-top: 20px;">
+          <h3 style="color: #ff4d6d;">📋 Historique</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Utilisateur</th>
+                <th>Score</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="adminHistory"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
 <script>
-// Hash SHA-256 du mot de passe "ewenlegoat123"
 const ADMIN_PASSWORD_HASH = "d752177b3b12b2773c7af2a64129b8cb13ab3a5cf50f37cfc1aa790c2b489e8e";
-
-const correctAnswers = { 
-  q1: "A", q2: "A", q3: "B", q4: "C", q5: "A" 
-};
-
+const correctAnswers = { q1: "A", q2: "A", q3: "B", q4: "C", q5: "A" };
 const questions = [
-  {
-    q: "Quelle technologie n'a pas de pièces mécaniques ?",
-    options: { A: "SSD", B: "HDD", C: "Bande magnétique" },
-    correct: "A",
-    explanation: "Le SSD (Solid State Drive) utilise de la mémoire flash sans pièces mobiles."
-  },
-  {
-    q: "Que signifie NVMe ?",
-    options: { A: "Non-Volatile Memory Express", B: "New Virtual Memory Engine", C: "Next Video Media Extension" },
-    correct: "A",
-    explanation: "NVMe est un protocole optimisé pour les SSD qui utilise le bus PCIe."
-  },
-  {
-    q: "Quelle est la capacité du premier disque dur en 1956 ?",
-    options: { A: "500 Mo", B: "3,75 Mo", C: "1 Go" },
-    correct: "B",
-    explanation: "L'IBM 305 RAMAC de 1956 avait seulement 3,75 Mo et pesait plus d'une tonne !"
-  },
-  {
-    q: "Quel est un inconvénient du SSD ?",
-    options: { A: "Il est très lent", B: "Il fait du bruit", C: "Écriture limitée dans le temps" },
-    correct: "C",
-    explanation: "Les cellules de mémoire flash ont un nombre limité de cycles d'écriture/effacement."
-  },
-  {
-    q: "Quel disque est un mélange de SSD et HDD ?",
-    options: { A: "SSHD", B: "HDD", C: "SDD+" },
-    correct: "A",
-    explanation: "Le SSHD combine un disque dur avec de la mémoire flash pour de meilleures performances."
-  }
+  { q: "Quelle technologie n'a pas de pièces mécaniques ?", options: { A: "SSD", B: "HDD", C: "Bande magnétique" }, correct: "A", explanation: "Le SSD utilise de la mémoire flash sans pièces mobiles." },
+  { q: "Que signifie NVMe ?", options: { A: "Non-Volatile Memory Express", B: "New Virtual Memory Engine", C: "Next Video Media Extension" }, correct: "A", explanation: "NVMe est un protocole optimisé pour les SSD." },
+  { q: "Quelle est la capacité du premier disque dur en 1956 ?", options: { A: "500 Mo", B: "3,75 Mo", C: "1 Go" }, correct: "B", explanation: "L'IBM 305 RAMAC avait 3,75 Mo !" },
+  { q: "Quel est un inconvénient du SSD ?", options: { A: "Il est très lent", B: "Il fait du bruit", C: "Écriture limitée dans le temps" }, correct: "C", explanation: "Les cellules flash ont un nombre limité de cycles." },
+  { q: "Quel disque est un mélange de SSD et HDD ?", options: { A: "SSHD", B: "HDD", C: "SDD+" }, correct: "A", explanation: "Le SSHD combine HDD et flash." }
 ];
 
-// Initialisation
+async function fetchResults() {
+  try {
+    const response = await fetch('api.php');
+    if (!response.ok) throw new Error('Erreur');
+    const data = await response.json();
+    return data.results || [];
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert('⚠️ Vérifie que api.php existe et fonctionne');
+    return [];
+  }
+}
+
+async function saveResult(result) {
+  try {
+    const response = await fetch('api.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(result)
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert('⚠️ Erreur de sauvegarde');
+    return false;
+  }
+}
+
 window.onload = function() {
   const savedUser = localStorage.getItem("currentUser");
   if (savedUser) {
@@ -444,49 +470,31 @@ window.onload = function() {
     document.getElementById("userDisplay").style.display = "block";
     document.getElementById("currentUser").textContent = savedUser;
   }
-
-  // Gérer la sélection des options
   document.querySelectorAll('.option').forEach(option => {
     option.addEventListener('click', function() {
       const input = this.querySelector('input');
-      const name = input.name;
-      
-      document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
-        inp.parentElement.classList.remove('selected');
-      });
-      
+      document.querySelectorAll(`input[name="${input.name}"]`).forEach(inp => inp.parentElement.classList.remove('selected'));
       this.classList.add('selected');
     });
   });
-
-  // Gérer l'entrée du nom
   document.getElementById('username')?.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      const username = this.value.trim();
-      if (username) {
-        localStorage.setItem("currentUser", username);
-        document.getElementById("userInput").style.display = "none";
-        document.getElementById("userDisplay").style.display = "block";
-        document.getElementById("currentUser").textContent = username;
-      }
+    if (e.key === 'Enter' && this.value.trim()) {
+      localStorage.setItem("currentUser", this.value.trim());
+      document.getElementById("userInput").style.display = "none";
+      document.getElementById("userDisplay").style.display = "block";
+      document.getElementById("currentUser").textContent = this.value.trim();
     }
   });
 };
 
-// Fonction pour hasher le mot de passe avec SHA-256
 async function sha256(message) {
   const msgBuffer = new TextEncoder().encode(message);
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Afficher la page de connexion admin
 function showAdminLogin() {
-  // Vérifier si déjà connecté
-  const isAdminLogged = sessionStorage.getItem('adminLogged');
-  if (isAdminLogged === 'true') {
+  if (sessionStorage.getItem('adminLogged') === 'true') {
     showPage('admin');
   } else {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -497,182 +505,120 @@ function showAdminLogin() {
   }
 }
 
-// Vérifier le mot de passe admin
 async function checkAdminPassword() {
   const password = document.getElementById('adminPassword').value;
-  const errorDiv = document.getElementById('loginError');
-  
   if (!password) {
-    errorDiv.textContent = '❌ Entre un mot de passe';
+    document.getElementById('loginError').textContent = '❌ Entre un mot de passe';
     return;
   }
-  
-  const hash = await sha256(password);
-  
-  if (hash === ADMIN_PASSWORD_HASH) {
+  if (await sha256(password) === ADMIN_PASSWORD_HASH) {
     sessionStorage.setItem('adminLogged', 'true');
-    errorDiv.textContent = '';
     showPage('admin');
   } else {
-    errorDiv.textContent = '❌ Mot de passe incorrect';
+    document.getElementById('loginError').textContent = '❌ Mot de passe incorrect';
     document.getElementById('adminPassword').value = '';
   }
 }
 
 function showPage(pageName) {
-  // Vérifier l'authentification pour la page admin
-  if (pageName === 'admin') {
-    const isAdminLogged = sessionStorage.getItem('adminLogged');
-    if (isAdminLogged !== 'true') {
-      showAdminLogin();
-      return;
-    }
+  if (pageName === 'admin' && sessionStorage.getItem('adminLogged') !== 'true') {
+    showAdminLogin();
+    return;
   }
-  
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  
-  if (pageName === 'quiz') {
-    document.getElementById('quizPage').classList.add('active');
-    document.getElementById('navMenu').style.display = 'none';
-  } else if (pageName === 'results') {
-    document.getElementById('resultsPage').classList.add('active');
-    document.getElementById('navMenu').style.display = 'block';
-    loadResults();
-  } else if (pageName === 'admin') {
-    document.getElementById('adminPage').classList.add('active');
-    document.getElementById('navMenu').style.display = 'block';
-    loadAdmin();
-  }
+  document.getElementById(pageName + 'Page').classList.add('active');
+  document.getElementById('navMenu').style.display = pageName === 'quiz' ? 'none' : 'block';
+  if (pageName === 'results') loadResults();
+  if (pageName === 'admin') loadAdmin();
 }
 
-function submitQuiz() {
+async function submitQuiz() {
   let user = localStorage.getItem("currentUser");
   if (!user) {
     const username = document.getElementById('username')?.value.trim();
-    if (!username) {
-      alert("❗ Entre ton nom d'abord !");
-      return;
-    }
+    if (!username) { alert("❗ Entre ton nom !"); return; }
     user = username;
     localStorage.setItem("currentUser", user);
   }
-
   const answers = {};
-  let score = 0;
-  let allAnswered = true;
-
+  let score = 0, allAnswered = true;
   for (let q in correctAnswers) {
     const selected = document.querySelector(`input[name="${q}"]:checked`);
-    if (!selected) {
-      allAnswered = false;
-      break;
-    }
+    if (!selected) { allAnswered = false; break; }
     answers[q] = selected.value;
     if (selected.value === correctAnswers[q]) score++;
   }
-
-  if (!allAnswered) {
-    alert("❗ Merci de répondre à toutes les questions !");
-    return;
-  }
-
-  const result = {
-    username: user,
-    score: score,
-    total: 5,
-    answers: answers,
-    date: new Date().toISOString()
-  };
-
-  let allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
-  allResults.push(result);
-  localStorage.setItem("quizResults", JSON.stringify(allResults));
-  localStorage.setItem("lastResult", JSON.stringify(result));
-
-  showPage('results');
-}
-
-function loadResults() {
-  const lastResult = JSON.parse(localStorage.getItem("lastResult") || "{}");
-  const allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
-
-  if (!lastResult.username) {
-    showPage('quiz');
-    return;
-  }
-
-  document.getElementById("resultUsername").textContent = lastResult.username;
-  document.getElementById("userScore").textContent = `${lastResult.score}/${lastResult.total}`;
-
-  if (allResults.length > 0) {
-    const totalScore = allResults.reduce((sum, r) => sum + r.score, 0);
-    const average = (totalScore / allResults.length).toFixed(1);
-    document.getElementById("avgScore").textContent = average + "/5";
-    document.getElementById("totalUsers").textContent = allResults.length;
-
-    const sortedResults = [...allResults].sort((a, b) => b.score - a.score);
-    const leaderboardHTML = sortedResults.slice(0, 10).map((result, index) => {
-      const isCurrent = result.username === lastResult.username && result.date === lastResult.date;
-      const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "";
-      return `
-        <div class="leaderboard-item ${isCurrent ? 'current' : ''}">
-          <div>
-            <span class="rank">#${index + 1}</span>
-            <span class="medal">${medal}</span>
-            ${result.username}
-          </div>
-          <div style="color: #ff4d6d; font-weight: bold;">${result.score}/5</div>
-        </div>
-      `;
-    }).join("");
-    document.getElementById("leaderboardList").innerHTML = leaderboardHTML;
-  }
-
-  const correctionHTML = questions.map((question, index) => {
-    const qNum = `q${index + 1}`;
-    const userAnswer = lastResult.answers[qNum];
-    const isCorrect = userAnswer === question.correct;
-
-    return `
-      <div class="question-result ${isCorrect ? 'correct' : 'wrong'}">
-        <div class="question-title">
-          <span class="icon">${isCorrect ? '✅' : '❌'}</span>
-          Question ${index + 1} : ${question.q}
-        </div>
-        <div class="answer-line your-answer">
-          <strong>Ta réponse :</strong> ${userAnswer} - ${question.options[userAnswer]}
-        </div>
-        ${!isCorrect ? `
-          <div class="answer-line correct-answer">
-            <strong>Bonne réponse :</strong> ${question.correct} - ${question.options[question.correct]}
-          </div>
-        ` : ''}
-        <div class="answer-line" style="color: #aaa; margin-top: 8px; font-size: 14px;">
-          💡 ${question.explanation}
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  document.getElementById("correctionList").innerHTML = correctionHTML;
-}
-
-function loadAdmin() {
-  const allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
+  if (!allAnswered) { alert("❗ Réponds à toutes les questions !"); return; }
   
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitLoading').style.display = 'block';
+  
+  const result = { username: user, score, total: 5, answers, date: new Date().toISOString() };
+  if (await saveResult(result)) {
+    localStorage.setItem("lastResult", JSON.stringify(result));
+    showPage('results');
+  }
+  
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('submitLoading').style.display = 'none';
+}
+
+async function loadResults() {
+  document.getElementById('resultsLoading').style.display = 'block';
+  document.getElementById('resultsContent').style.display = 'none';
+  
+  const lastResult = JSON.parse(localStorage.getItem("lastResult") || "{}");
+  if (!lastResult.username) { showPage('quiz'); return; }
+  
+  const allResults = await fetchResults();
+  document.getElementById("resultUsername").textContent = lastResult.username;
+  document.getElementById("userScore").textContent = `${lastResult.score}/5`;
+  
+  if (allResults.length > 0) {
+    const avg = (allResults.reduce((sum, r) => sum + r.score, 0) / allResults.length).toFixed(1);
+    document.getElementById("avgScore").textContent = avg + "/5";
+    document.getElementById("totalUsers").textContent = allResults.length;
+    
+    const sortedResults = [...allResults].sort((a, b) => b.score - a.score);
+    document.getElementById("leaderboardList").innerHTML = sortedResults.slice(0, 10).map((r, i) => {
+      const isCurrent = r.username === lastResult.username && r.date === lastResult.date;
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
+      return `<div class="leaderboard-item ${isCurrent ? 'current' : ''}"><div><span class="rank">#${i + 1}</span><span class="medal">${medal}</span>${r.username}</div><div style="color: #ff4d6d; font-weight: bold;">${r.score}/5</div></div>`;
+    }).join("");
+  }
+  
+  document.getElementById("correctionList").innerHTML = questions.map((q, i) => {
+    const qNum = `q${i + 1}`;
+    const userAns = lastResult.answers[qNum];
+    const isCorrect = userAns === q.correct;
+    return `<div class="question-result ${isCorrect ? 'correct' : 'wrong'}"><div class="question-title"><span class="icon">${isCorrect ? '✅' : '❌'}</span>Question ${i + 1} : ${q.q}</div><div class="answer-line" style="color: #ff4d6d;"><strong>Ta réponse :</strong> ${userAns} - ${q.options[userAns]}</div>${!isCorrect ? `<div class="answer-line" style="color: #4caf50;"><strong>Bonne réponse :</strong> ${q.correct} - ${q.options[q.correct]}</div>` : ''}<div class="answer-line" style="color: #aaa; margin-top: 8px; font-size: 14px;">💡 ${q.explanation}</div></div>`;
+  }).join("");
+  
+  document.getElementById('resultsLoading').style.display = 'none';
+  document.getElementById('resultsContent').style.display = 'block';
+}
+
+async function loadAdmin() {
+  document.getElementById('adminLoading').style.display = 'block';
+  document.getElementById('adminContent').style.display = 'none';
+  
+  const allResults = await fetchResults();
   if (allResults.length > 0) {
     const avg = (allResults.reduce((sum, r) => sum + r.score, 0) / allResults.length).toFixed(1);
     document.getElementById("adminTotal").textContent = allResults.length;
     document.getElementById("adminAvg").textContent = avg + "/5";
-
-    const historyHTML = allResults.map((r, i) => `
-      <div style="background: #0b0c10; padding: 10px; border-radius: 8px; margin: 8px 0;">
-        <strong>${i + 1}. ${r.username}</strong> - ${r.score}/5
-        <span style="color: #aaa; font-size: 12px; float: right;">${new Date(r.date).toLocaleString('fr-FR')}</span>
-      </div>
-    `).join("");
-    document.getElementById("adminHistory").innerHTML = historyHTML;
+    document.getElementById("adminHistory").innerHTML = allResults.map((r, i) => 
+      `<tr><td>${i + 1}</td><td>${r.username}</td><td style="color: #ff4d6d; font-weight: bold;">${r.score}/5</td><td style="font-size: 12px; color: #aaa;">${new Date(r.date).toLocaleString('fr-FR')}</td></tr>`
+    ).join("");
   }
+  
+  document.getElementById('adminLoading').style.display = 'none';
+  document.getElementById('adminContent').style.display = 'block';
+}
+
+async function refreshAdminData() {
+  await loadAdmin();
+  alert('✅ Actualisé !');
 }
 
 function resetQuiz() {
@@ -682,34 +628,29 @@ function resetQuiz() {
   });
 }
 
-function downloadResults() {
-  const allResults = JSON.parse(localStorage.getItem("quizResults") || "[]");
-  
+async function downloadResults() {
+  const allResults = await fetchResults();
   const data = {
     totalParticipants: allResults.length,
-    averageScore: allResults.length > 0 ? 
-      (allResults.reduce((sum, r) => sum + r.score, 0) / allResults.length).toFixed(2) : 0,
+    averageScore: allResults.length > 0 ? (allResults.reduce((sum, r) => sum + r.score, 0) / allResults.length).toFixed(2) : 0,
     results: allResults,
-    questions: questions,
+    questions,
     generatedAt: new Date().toISOString()
   };
-
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = `qcm-results-${Date.now()}.json`;
-  document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
-function clearAllData() {
-  if (confirm("⚠️ Effacer TOUTES les données ?")) {
-    localStorage.clear();
-    alert("✅ Données effacées !");
-    location.reload();
+async function clearAllData() {
+  if (confirm("⚠️ Effacer TOUT ?")) {
+    const response = await fetch('api.php', { method: 'DELETE' });
+    if (response.ok) { alert("✅ Effacé !"); location.reload(); }
+    else alert("❌ Erreur");
   }
 }
 
@@ -719,6 +660,5 @@ function logoutAdmin() {
   showPage('quiz');
 }
 </script>
-
 </body>
 </html>
