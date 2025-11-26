@@ -106,56 +106,59 @@
     </form>
   </div>
 
-  <script>
-    const user = localStorage.getItem("currentUser");
-    const correctAnswers = { q1: "A", q2: "A", q3: "B", q4: "C", q5: "A" };
-    const endpoint = "https://script.google.com/macros/s/AKfycbxrtS0w7SjkHYTb1Yr0ic69QCLqYASc4Bi2E7p70BFUaiczmDPdFTIoQWIBsdd-bK0ERw/exec";
+<script>
+const user = localStorage.getItem("currentUser");
+const correctAnswers = { q1: "A", q2: "A", q3: "B", q4: "C", q5: "A" };
 
-    document.getElementById("user").textContent = user ? `Connecté : ${user}` : "Non connecté";
+// ✅ Colle ici l'URL exacte de ton déploiement Apps Script (qui finit par /exec)
+const endpoint = "https://script.google.com/macros/s/AKfycbxrtS0w7SjkHYTb1Yr0ic69QCLqYASc4Bi2E7p70BFUaiczmDPdFTIoQWIBsdd-bK0ERw/exec";
 
-    async function submitQuiz() {
-      const answers = {};
-      let score = 0;
-      let allAnswered = true;
+async function submitQuiz() {
+  const answers = {};
+  let score = 0;
+  let allAnswered = true;
 
-      for (let q in correctAnswers) {
-        const selected = document.querySelector(`input[name="${q}"]:checked`);
-        if (!selected) {
-          allAnswered = false;
-          break;
-        }
-        answers[q] = selected.value;
-        if (selected.value === correctAnswers[q]) score++;
-      }
-
-      if (!allAnswered) {
-        alert("❗ Merci de répondre à toutes les questions !");
-        return;
-      }
-
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: user,
-            score: score,
-            total: 5,
-            ...answers
-          })
-        });
-
-        if (response.ok) {
-          window.location.href = "resultat.html";
-        } else {
-          alert("Erreur lors de l'envoi. Statut: " + response.status);
-        }
-      } catch (error) {
-        console.error("Erreur de connexion:", error);
-        alert("Impossible de se connecter au serveur.");
-        window.location.href = "resultat.html";
-      }
+  for (let q in correctAnswers) {
+    const selected = document.querySelector(`input[name="${q}"]:checked`);
+    if (!selected) {
+      allAnswered = false;
+      break;
     }
-  </script>
+    answers[q] = selected.value;
+    if (selected.value === correctAnswers[q]) score++;
+  }
+
+  if (!allAnswered) {
+    alert("❗ Merci de répondre à toutes les questions !");
+    return;
+  }
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: user,
+        score: score,
+        total: 5,
+        ...answers
+      })
+    });
+
+    if (response.ok) {
+      window.location.href = "resultat.html";
+    } else {
+      alert("Erreur lors de l'envoi. Statut: " + response.status);
+    }
+  } catch (error) {
+    console.error("Erreur de connexion:", error);
+    alert("Impossible de se connecter au serveur. Vérifiez l'URL.");
+    window.location.href = "resultat.html";
+  }
+}
+</script>
+
 </body>
 </html>
