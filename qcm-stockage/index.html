@@ -68,6 +68,7 @@
       <div class="error" id="error"></div>
     </form>
   </div>
+
   <script>
     const users = [
       "baheux-p", "croguennec-t", "piron-a", "le-goff-e", "brehelin-e", "mekhfi-a",
@@ -80,10 +81,12 @@
       e.preventDefault();
       const username = document.getElementById("username").value.trim().toLowerCase();
       const errorBox = document.getElementById("error");
+
       if (!users.includes(username)) {
-        errorBox.textContent = "Utilisateur inconnu. Veuillez vérifier votre identifiant.";
+        errorBox.textContent = "❗ Utilisateur inconnu. Vérifie ton identifiant.";
         return;
       }
+
       localStorage.setItem("currentUser", username);
       window.location.href = username === "admin" ? "admin.html" : "oral.html";
     }

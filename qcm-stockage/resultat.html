@@ -2,20 +2,110 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Résultats</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Résultats - QCM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background: #0b0c10;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #1f1f2e;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255, 77, 109, 0.2);
+    }
+    h1 {
+      color: #ff4d6d;
+      text-align: center;
+    }
+    .score {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      background-color: #ff4d6d;
+      color: black;
+    }
+    .absents {
+      margin-top: 20px;
+      color: #aaa;
+    }
+  </style>
 </head>
 <body>
-  <h1>Résultats de la classe</h1>
-  <div id="classement"></div>
+  <div class="container">
+    <h1>Résultats de la Classe</h1>
+    <div class="score" id="userScore">Chargement...</div>
+
+    <table id="ranking">
+      <thead>
+        <tr>
+          <th>Nom d'utilisateur</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="absents" id="absentsInfo"></div>
+  </div>
 
   <script>
     const user = localStorage.getItem("currentUser");
+    const allUsers = [
+      "baheux-p", "croguennec-t", "piron-a", "le-goff-e", "brehelin-e", "mekhfi-a",
+      "belbeoch-n", "jicquel-r", "gargadennec-m", "thomas-m", "leroux-e", "strullu-l",
+      "philippe-durand-e", "leverge-c", "gardeux-g", "poggi-g", "morvan-g",
+      "henry-k", "lavieille-d", "quinio-diraison-g"
+    ];
+
     fetch("https://script.google.com/macros/s/AKfycbxAXdQ07ArLpFMQUsn_lUjPi5_Hqzwcljs6mAXCNoDeReiZZTs9aqZpmuSNfW_ynygUqg/exec")
       .then(res => res.json())
       .then(data => {
-        data.sort((a, b) => b.score - a.score);
-        const div = document.getElementById("classement");
-        div.innerHTML = data.map(d => `<p>${d.username}: ${d.score}/${d.total}</p>`).join("");
+        const users = data.filter(item => item.username !== "admin");
+        const tableBody = document.querySelector("#ranking tbody");
+
+        let currentUserFound = false;
+        users.sort((a, b) => b.score - a.score).forEach(entry => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${entry.username}</td><td>${entry.score}/${entry.total}</td>`;
+          tableBody.appendChild(tr);
+          if (entry.username === user) {
+            document.getElementById("userScore").textContent = `🎯 Ton score : ${entry.score}/${entry.total}`;
+            currentUserFound = true;
+          }
+        });
+
+        if (!currentUserFound) {
+          document.getElementById("userScore").textContent = "❗ Tu n'as pas encore soumis tes réponses.";
+        }
+
+        const respondedUsers = users.map(u => u.username);
+        const notResponded = allUsers.filter(u => !respondedUsers.includes(u));
+        const absentsDiv = document.getElementById("absentsInfo");
+        absentsDiv.innerHTML = `<strong>Participants :</strong> ${users.length} / ${allUsers.length}<br/>
+        <strong>Non répondus :</strong> ${notResponded.length > 0 ? notResponded.join(", ") : "Aucun 🎉"}`;
+      })
+      .catch(err => {
+        document.getElementById("userScore").textContent = "❌ Erreur de chargement des données.";
+        console.error(err);
       });
   </script>
 </body>

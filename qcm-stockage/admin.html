@@ -66,7 +66,7 @@
 </head>
 <body>
   <h1>👨‍🏫 Tableau de bord - Admin</h1>
-  <div class="stats" id="statsGlobal"></div>
+  <div class="stats" id="statsGlobal">Chargement...</div>
   <table>
     <thead>
       <tr>
@@ -78,8 +78,8 @@
     </thead>
     <tbody id="resultsTable"></tbody>
   </table>
+
   <div class="btns">
-    <button onclick="resetResults()">🔁 Réinitialiser</button>
     <button onclick="exportCSV()">📁 Exporter CSV</button>
   </div>
 
@@ -91,48 +91,55 @@
       "henry-k", "lavieille-d", "quinio-diraison-g"
     ];
     const totalQuestions = 5;
-    const storedResults = JSON.parse(localStorage.getItem("results")) || {};
     const tbody = document.getElementById("resultsTable");
 
-    let scores = [];
-    allStudents.forEach(name => {
-      const score = storedResults[name];
-      const percent = score !== undefined ? Math.round((score / totalQuestions) * 100) : "-";
-      const tr = document.createElement("tr");
-      tr.className = score !== undefined ? "present" : "absent";
-      tr.innerHTML = `
-        <td>${name}</td>
-        <td>${score !== undefined ? score + "/" + totalQuestions : "-"}</td>
-        <td>${percent !== "-" ? percent + "%" : "-"}</td>
-        <td>${score !== undefined ? "✅ Répondu" : "❌ Absent"}</td>
-      `;
-      tbody.appendChild(tr);
-      if (score !== undefined) scores.push(score);
-    });
+    fetch("https://script.google.com/macros/s/AKfycbzPXIdXqqBZCIuliw9UhQ3ihMBlm47flPgHvyXCG1Zw94oei6TQTNy8ud8hkMpEIZB2mA/exec")
+      .then(res => res.json())
+      .then(data => {
+        const resultsMap = {};
+        data.forEach(entry => {
+          resultsMap[entry.username] = entry.score;
+        });
 
-    const average = (scores.reduce((a, b) => a + b, 0) / scores.length || 0).toFixed(2);
-    const best = Math.max(...scores, 0);
-    const participation = Math.round((scores.length / allStudents.length) * 100);
+        let scores = [];
 
-    document.getElementById("statsGlobal").innerHTML = `
-      📊 Moyenne : <strong>${average}/${totalQuestions}</strong> — 
-      Meilleur score : <strong>${best}/${totalQuestions}</strong> — 
-      Participation : <strong>${scores.length}/${allStudents.length}</strong> (${participation}%)
-    `;
+        allStudents.forEach(name => {
+          const score = resultsMap[name];
+          const percent = score !== undefined ? Math.round((score / totalQuestions) * 100) : "-";
+          const tr = document.createElement("tr");
+          tr.className = score !== undefined ? "present" : "absent";
+          tr.innerHTML = `
+            <td>${name}</td>
+            <td>${score !== undefined ? score + "/" + totalQuestions : "-"}</td>
+            <td>${percent !== "-" ? percent + "%" : "-"}</td>
+            <td>${score !== undefined ? "✅ Répondu" : "❌ Absent"}</td>
+          `;
+          tbody.appendChild(tr);
+          if (score !== undefined) scores.push(score);
+        });
 
-    function resetResults() {
-      if (confirm("Es-tu sûr de vouloir effacer tous les résultats ?")) {
-        localStorage.removeItem("results");
-        location.reload();
-      }
-    }
+        const average = (scores.reduce((a, b) => a + b, 0) / scores.length || 0).toFixed(2);
+        const best = Math.max(...scores, 0);
+        const participation = Math.round((scores.length / allStudents.length) * 100);
+
+        document.getElementById("statsGlobal").innerHTML = `
+          📊 Moyenne : <strong>${average}/${totalQuestions}</strong> — 
+          Meilleur score : <strong>${best}/${totalQuestions}</strong> — 
+          Participation : <strong>${scores.length}/${allStudents.length}</strong> (${participation}%)
+        `;
+      })
+      .catch(err => {
+        document.getElementById("statsGlobal").textContent = "Erreur de chargement des données.";
+        console.error(err);
+      });
 
     function exportCSV() {
       let csv = "Nom,Score,Pourcentage\n";
-      allStudents.forEach(name => {
-        const score = storedResults[name] ?? "-";
-        const percent = score !== "-" ? Math.round((score / totalQuestions) * 100) + "%" : "-";
-        csv += `${name},${score !== "-" ? score + "/" + totalQuestions : "-"},${percent}\n`;
+      document.querySelectorAll("#resultsTable tr").forEach(row => {
+        const cols = row.querySelectorAll("td");
+        if (cols.length) {
+          csv += `${cols[0].textContent},${cols[1].textContent},${cols[2].textContent}\n`;
+        }
       });
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
